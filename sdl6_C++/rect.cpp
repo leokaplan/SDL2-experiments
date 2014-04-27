@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include "error.h"
 #include "globals.h"
+#include <cstdio>
 class Rect{
     SDL_Rect  rct;        
     int vel;         
@@ -9,9 +10,11 @@ class Rect{
 
     public:
     Rect(int vel,int x,int y,SDL_Renderer* ren){
-    	this->rct.w = 10;
+    	this->vel = vel;
+        this->rct.w = 10;
     	this->rct.h = 10;
     	this->rct.x = x;
+        this->rct.y = y;
         this->clr.r = 0xFF;
         this->clr.g = 0xFF;
         this->clr.b = 0xFF;
@@ -19,10 +22,13 @@ class Rect{
         obj++;
     }
     ~Rect(){
-        obj--;   
+        obj--; 
+    }
+    void say(){
+        printf("%d %d\n",this->vel,this->rct.x);
     }
     void render(){
-    	SDL_SetRenderDrawColor(ren, clr.r,clr.g,clr.b,0xFF);
+        SDL_SetRenderDrawColor(ren, clr.r,clr.g,clr.b,0xFF);
         SDL_RenderFillRect(ren, &rct);
     }
 
@@ -46,8 +52,9 @@ class Rect{
             T=0;
         }
         T += dt;
-        rct.x = rct.x + (float)(vel*dt)/1000;
-        if (rct.x > 950)           
-           	delete this;
+        float dx = (vel*dt)/1000;
+        rct.x = rct.x + dx;
+        //if (rct.x > 500)           
+           	//delete this;
     }
 };
