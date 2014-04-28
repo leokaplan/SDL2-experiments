@@ -9,7 +9,7 @@ CXXFLAGS = -Wall -c -g -std=c++0x $(SDL_INCLUDE)
 LDFLAGS = $(SDL_LIB)
 EXE = visual
 
-OBJ =  error.o  main.o rect.o
+OBJ =  error.o main.o rect.o
 
 all: $(EXE)
 
