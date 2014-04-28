@@ -22,10 +22,11 @@ class Rect{
         obj++;
     }
     ~Rect(){
-        obj--; 
+        obj--;
+        //this = NULL; 
     }
     void say(){
-        printf("%d %d\n",this->vel,this->rct.x);
+        printf("say: %d %d\n",this->vel,this->rct.x);
     }
     void render(){
         SDL_SetRenderDrawColor(ren, clr.r,clr.g,clr.b,0xFF);
@@ -54,7 +55,9 @@ class Rect{
         T += dt;
         float dx = (vel*dt)/1000;
         rct.x = rct.x + dx;
-        //if (rct.x > 500)           
-           	//delete this;
+    }
+    int died(){
+        if (rct.x > 300) return true;
+        return false;          
     }
 };

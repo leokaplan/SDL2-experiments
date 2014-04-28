@@ -1,11 +1,14 @@
 #include <iostream>
+#include <list>
 #include <SDL2/SDL.h>
 #include <cstdlib>
 #include "globals.h"
 #include "error.h"
 #include "rect.cpp"
+using namespace std;
 
 int obj = 0;
+list<Rect> r;
 
 
 int main(int argc, char **argv){
@@ -28,7 +31,10 @@ int main(int argc, char **argv){
 	bool T_running = true;
 	SDL_Event e;
 	bool quit = false;
-	Rect* r[10000];
+	//memset(r, 0, sizeof(r));
+	//int a[max_obj];
+	//memset(a, 0, sizeof(a));
+	list<Rect>::iterator it;
 	int timer1 = 0;
 	int timer2 = 0;
 	SDL_Rect bg;
@@ -63,44 +69,65 @@ int main(int argc, char **argv){
 		}
 		Uint32 dt = SDL_GetTicks() - T_start;
 		if( T_running == true ) { 
-			if (timer1>100){
-				   int j = 0;
+			if (timer1>40){
+				   //int j = 0;
                    for(int i = 0;i<30;i++){
-                       if(obj<10000){
-                       		while(r[j]!=nullptr) j++;
+                       if(obj<max_obj){
+   						r.push_back(Rect(500 + (random()%200), 50, random()%750,renderer));
+   						}
+                       /*if(obj<max_obj){
+                       		while(a[j]) { j++; }
+                       		//printf("creating: %d %d\n",j ,obj);
                        		r[j] = new Rect(50 + (random()%20), 50, random()%750,renderer);
-                       		//printf("%d\n",j );
-                       } 
+                       		a[j] = 1;
+                       } */
                    }
-                  	timer1 = 0;
+                   timer1 = 0;
             }
-            if (timer2>100000){
-                    printf("tem: %d\n",obj);
+            if (timer2>30000){
+                    //printf("tem: %d\n",obj);
+					/*int j = 1;
 					while(obj!=0){
-                       if(r[obj-1]!=nullptr)
-                       	delete r[obj-1];
-                   }
-                   printf("deletou: %d\n",obj);
+                       if(a[obj-j]){
+                       	    a[obj-j] = 0;
+                       		delete r[obj-j];
+                       	}
+                       	else
+                       		j++; 
+                   }*/
+                   r.erase(r.begin(), r.end());
+                   //printf("deletou: %d\n",obj);
                   	timer2 = 0;
                }
-               timer1 += dt;
-               timer2 += dt;
+              
 		 
 		
-			SDL_RenderClear(renderer);
+			//SDL_RenderClear(renderer);
 			SDL_SetRenderDrawColor(renderer, 0,0,0, 0xFF);
 	        SDL_RenderFillRect(renderer, &bg);
-			for(int i = 0;i<obj;i++){   
-	            if(r[i]!=nullptr){
+			/*for(int i = 0;i<obj;i++){   
+	            if(a[i]){
 	            	r[i]->update(dt);
 	           		r[i]->render();
+	           		if (r[i]->died()){
+	            		delete r[i];
+	            		a[i] = 0;
+	            	}
 	        	}
 	        	else{
-	        		printf("null %d\n", i);
+	        		//printf("null: %d\n", i);
 	        	}
-	        }
-
+	        }*/
+			for (it = r.begin(); it != r.end(); it++){
+    			(*it).update(dt);
+    			(*it).render();
+    			//if ((*it).died())
+	            		//r.erase(it);
+			}
 			SDL_RenderPresent(renderer);
+			T_start +=dt;
+			timer1 += dt;
+            timer2 += dt;
 		}
 	}
 
