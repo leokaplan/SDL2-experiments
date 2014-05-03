@@ -1,16 +1,16 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-
+#include <vector>
 #include <SDL2/SDL.h>
+using namespace std;
 
 #define NCOEF	(12)
 
 #define SCREEN_WIDTH	(800)
 #define SCREEN_HEIGHT	(500)
 #define SCREEN_DEPTH	(32)
-#define BPM (500)
-#define CLICK (100)
+
 
 #include "harmo.c"
 
@@ -48,8 +48,11 @@ int main(void)
 	int timer = 0;
 	int timer2 = 0;
 	int note = 0;
-	int music[] = {0,0,1,2,0,-2,-1,-2,-2,0,2,2,0,-2,0};
-	int music_tam = sizeof(music)/sizeof(int) - 1;
+	vector<int> music;
+	int music_tam = 0;
+	int BPM  = 500;
+	int CLICK = BPM;
+	int new_note = 0;
 	while(!quit)
 	{
 		/* Events */
@@ -68,27 +71,68 @@ int main(void)
 			{
 				treat_click(event.motion.x, event.motion.y, synth);
 			}
-			else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_1){
-				change_note(synth,1);
+			else if (event.type == SDL_KEYDOWN){
+				if(event.key.keysym.sym == SDLK_1){
+					reset_note(synth);
+					change_note(synth,2);
+					note = 0;
+				}
+				else if (event.key.keysym.sym == SDLK_2){
+					reset_note(synth);
+					change_note(synth,-2);
+					note = 0;
+				}
+				else if (event.key.keysym.sym == SDLK_3){
+					new_note++;
+				}
+				else if (event.key.keysym.sym == SDLK_4){
+					new_note--;
+				}
+				else if (event.key.keysym.sym == SDLK_5){
+					music.push_back(new_note);
+					music_tam++;
+					new_note = 0;
+				}
+				else if (event.key.keysym.sym == SDLK_6){
+					music.erase(music.begin(), music.end());
+					music_tam = 0;
+					new_note = 0;
+				}
+				else if (event.key.keysym.sym == SDLK_q){
+					CLICK++;
+				}
+				else if (event.key.keysym.sym == SDLK_a){
+					CLICK--;
+				}
+				else if (event.key.keysym.sym == SDLK_z){
+					CLICK = 0;
+				}
+				else if (event.key.keysym.sym == SDLK_x){
+					CLICK = BPM;
+				}
+				else if (event.key.keysym.sym == SDLK_w){
+					BPM++;
+				}
+				else if (event.key.keysym.sym == SDLK_s){
+					BPM--;
+				}
 			}
-			else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_2){
-				change_note(synth,-1);
-			}
-				
 		}
 		
 		/* Play music */
 		if(timer2>CLICK){
-			SDL_PauseAudio(0);
+			SDL_PauseAudio(1);
 			timer2 = 0;
 		}
 		if(timer>BPM){
-			SDL_PauseAudio(1);
-			if(note>music_tam) {
+			if(note>=music_tam) {
 				note = 0;
 				reset_note(synth);
 			}
-			change_note(synth,music[note]);
+			if(music_tam) {
+				SDL_PauseAudio(0);
+				change_note(synth,music[note]);
+			}
 			note = note + 1;
 			timer = 0;
 		}
