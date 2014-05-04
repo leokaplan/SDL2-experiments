@@ -3,6 +3,7 @@
 #include <math.h>
 #include <vector>
 #include <SDL2/SDL.h>
+#include <string>
 using namespace std;
 
 #define NCOEF	(12)
@@ -32,6 +33,7 @@ int main(void)
 		if (renderer == nullptr){
 			return 3;
 		}
+	//TTF_Init();
 	/* Synth init */
 	
 	synth = make_synth();
@@ -53,6 +55,10 @@ int main(void)
 	int BPM  = 500;
 	int CLICK = BPM;
 	int new_note = 0;
+	int font_h = 10;
+ 	TTF_Font * gFont = TTF_OpenFont( "font.ttf", font_h );
+ 	SDL_Color textColor = { 0, 255, 0 };
+
 	while(!quit)
 	{
 		/* Events */
@@ -160,17 +166,21 @@ int main(void)
 			rect.w = SCREEN_WIDTH / NCOEF;
 			
 			rect.y = (1.0 - synth->coefs[i]) * SCREEN_HEIGHT;
-			rect.h = synth->coefs[i] * SCREEN_HEIGHT;	
+			rect.h = synth->coefs[i] * SCREEN_HEIGHT - 3*font_h;	
 			SDL_SetRenderDrawColor(renderer, 255,0,0, 0xFF);
             SDL_RenderFillRect(renderer, &rect);
 		}
-			
-		
-
-	SDL_RenderPresent(renderer);
+		char* textureText = "oi";	
+		/* Text */
+		SDL_Surface* textSurface = TTF_RenderText_Solid( gFont, textureText, textColor );
+		TextTexture = SDL_CreateTextureFromSurface( renderer, textSurface );
+		SDL_FreeSurface( textSurface );
+		SDL_RenderPresent(renderer);
 	}
 
-
+ 	TextTexture.free();
+ 	TTF_CloseFont(gFont); 
+ 	gFont = NULL;
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
