@@ -41,7 +41,7 @@ int main(void)
 	printf("Synth: %f Hz %f s\n", synth->fs, synth->Ts);
 	
 	open_audio(synth);
-	SDL_PauseAudio(0);
+	SDL_PauseAudio(1);
 	
 	/* Main loop */
 	
@@ -56,9 +56,11 @@ int main(void)
 	int CLICK = BPM;
 	int new_note = 0;
 	int font_h = 10;
- 	TTF_Font * gFont = TTF_OpenFont( "font.ttf", font_h );
- 	SDL_Color textColor = { 0, 255, 0 };
-
+	int keys[] = {SDLK_r,SDLK_t,SDLK_y,SDLK_u,SDLK_i,SDLK_o,SDLK_p}; 
+	int scale[] = {0,3,5,6,7,10,12};
+	int keys_tam = 7;
+	int key_block = false;
+	int pressed;
 	while(!quit)
 	{
 		/* Events */
@@ -122,31 +124,31 @@ int main(void)
 				else if (event.key.keysym.sym == SDLK_s){
 					BPM--;
 				}
-			}
-		}
-		
-		/* Play music */
-		if(timer2>CLICK){
-			SDL_PauseAudio(1);
-			timer2 = 0;
-		}
-		if(timer>BPM){
-			if(note>=music_tam) {
-				note = 0;
-				reset_note(synth);
-			}
-			if(music_tam) {
-				SDL_PauseAudio(0);
-				change_note(synth,music[note]);  
-			}
-			note = note + 1;
-			timer = 0;
-		}
+				/* interactive mode */
 
-		Uint32 dt = SDL_GetTicks() - T_start;
-		timer2+=dt;
-		timer += dt;
-		T_start += dt;
+				if(!key_block){
+					for(int j = 0;j<keys_tam;j++){
+						if(event.key.keysym.sym == keys[j]){
+							//printf("%d\n",j);
+							SDL_PauseAudio(0);
+							change_note(synth,scale[j]);
+							key_block = true;
+							pressed = j;
+							break;
+						}
+					}
+				}
+			}
+			else if (event.type == SDL_KEYUP){
+				if(key_block){
+						if(event.key.keysym.sym == keys[pressed]){
+							key_block = false;
+							reset_note(synth);
+							SDL_PauseAudio(1);
+						}
+				}
+			}
+		}
 
 
 		/* Drawing */
@@ -157,7 +159,6 @@ int main(void)
     	bg.y = 0;
 		SDL_SetRenderDrawColor(renderer, 0,0,0, 0xFF);
         SDL_RenderFillRect(renderer, &bg);
-		
 		for (int i = 0; i < NCOEF ; i++)
 		{
 			SDL_Rect rect;
@@ -170,17 +171,10 @@ int main(void)
 			SDL_SetRenderDrawColor(renderer, 255,0,0, 0xFF);
             SDL_RenderFillRect(renderer, &rect);
 		}
-		char* textureText = "oi";	
-		/* Text */
-		SDL_Surface* textSurface = TTF_RenderText_Solid( gFont, textureText, textColor );
-		TextTexture = SDL_CreateTextureFromSurface( renderer, textSurface );
-		SDL_FreeSurface( textSurface );
 		SDL_RenderPresent(renderer);
 	}
 
- 	TextTexture.free();
- 	TTF_CloseFont(gFont); 
- 	gFont = NULL;
+ 
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
