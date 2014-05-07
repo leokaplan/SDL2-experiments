@@ -112,3 +112,4 @@ void change_note(Synth* synth, int n){
 void reset_note(Synth* synth){
 	synth->f = ROOT;
 }	
+

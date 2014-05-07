@@ -3,6 +3,8 @@
 #include <math.h>
 #include <vector>
 #include <SDL2/SDL.h>
+#include "SDL2/SDL_ttf.h"
+
 #include <string>
 using namespace std;
 
@@ -33,7 +35,7 @@ int main(void)
 		if (renderer == nullptr){
 			return 3;
 		}
-	//TTF_Init();
+	TTF_Init();
 	/* Synth init */
 	
 	synth = make_synth();
@@ -55,8 +57,9 @@ int main(void)
 	int BPM  = 500;
 	int CLICK = BPM;
 	int new_note = 0;
-	int font_h = 10;
- 	TTF_Font * gFont = TTF_OpenFont( "font.ttf", font_h );
+	int font_h = 12;
+	SDL_Texture* TextTexture;
+ 	TTF_Font * gFont = TTF_OpenFont( "monofont.ttf", font_h );
  	SDL_Color textColor = { 0, 255, 0 };
 
 	while(!quit)
@@ -166,19 +169,44 @@ int main(void)
 			rect.w = SCREEN_WIDTH / NCOEF;
 			
 			rect.y = (1.0 - synth->coefs[i]) * SCREEN_HEIGHT;
-			rect.h = synth->coefs[i] * SCREEN_HEIGHT - 3*font_h;	
+			rect.h = synth->coefs[i] * SCREEN_HEIGHT;	
 			SDL_SetRenderDrawColor(renderer, 255,0,0, 0xFF);
             SDL_RenderFillRect(renderer, &rect);
 		}
-		char* textureText = "oi";	
+
+		string textureText = "";
+		textureText.append("BPM:");
+		textureText.append(to_string(BPM));
+		textureText.append(" CLICK:");
+		textureText.append(to_string(CLICK));
+		textureText.append(" SEQ:");
+		for (int i = 0; i < music_tam; i++)
+		{
+			if(music[i]>=0) textureText.push_back(music[i] +'0');
+			else {
+				textureText.push_back('-');
+				textureText.push_back(-1*music[i] +'0');
+			}
+		}
+		if(new_note>=0) textureText.push_back(new_note +'0');
+		else {
+			textureText.push_back('-');
+			textureText.push_back(-1*new_note +'0');
+		}
 		/* Text */
-		SDL_Surface* textSurface = TTF_RenderText_Solid( gFont, textureText, textColor );
+		SDL_Rect str_r;
+    	str_r.x = 0;
+    	str_r.y = 0;
+    	str_r.w = font_h*textureText.size()*1.5;
+    	str_r.h = font_h*1.7;
+		SDL_Surface* textSurface = TTF_RenderText_Solid( gFont, textureText.c_str(), textColor );
 		TextTexture = SDL_CreateTextureFromSurface( renderer, textSurface );
+		SDL_RenderCopy(renderer, TextTexture, 0, &str_r);
 		SDL_FreeSurface( textSurface );
 		SDL_RenderPresent(renderer);
 	}
 
- 	TextTexture.free();
+ 	free(TextTexture);
  	TTF_CloseFont(gFont); 
  	gFont = NULL;
 	SDL_DestroyRenderer(renderer);
