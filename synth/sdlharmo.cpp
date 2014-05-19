@@ -17,8 +17,22 @@ using namespace std;
 
 #include "harmo.c"
 
+vector<string> notes = {"C","C#","D","Eb","E","F","F#","G","Ab","A","Bb","B"};
+
+int get_note(int interval){
+	int notes_tam = notes.size() - 1;
+	int real_note = get_root() + interval;
+	if(real_note >= notes_tam + 1 ) return real_note%notes_tam;
+	else if(real_note < 0 ) return notes_tam + real_note%notes_tam; 
+	return real_note;
+}
+//TODO:
+//int get_octave(int interval);
+
 int main(void)
 {
+	/* instructions */
+	
 	Synth *synth;
 	SDL_Event event;
 		
@@ -35,6 +49,13 @@ int main(void)
 		if (renderer == nullptr){
 			return 3;
 		}
+
+	printf("--------------instructions------------\n");
+	printf("mouse to change the instrument\n1 to increase root note by 1 semitone\n2 to decrease root note by 1 semitone\n3 and 4 to change new note by 1 semitone\n");
+	printf("5 add a note playing\n6 clean music\n7 add a note not playing\n8 play music bufferized by 7\n");
+	printf("q up click\na down click\nz zero click\nx reset click\nw up BPM\ns down BPM\n");
+	printf("--------------------------------------\n");
+
 	TTF_Init();
 	/* Synth init */
 	
@@ -92,10 +113,10 @@ int main(void)
 					note = 0;
 				}
 				else if (event.key.keysym.sym == SDLK_3){
-					new_note++;
+					new_note--;
 				}
 				else if (event.key.keysym.sym == SDLK_4){
-					new_note--;
+					new_note++;
 				}
 				else if (event.key.keysym.sym == SDLK_5){
 					music.push_back(new_note);
@@ -106,6 +127,13 @@ int main(void)
 					music.erase(music.begin(), music.end());
 					music_tam = 0;
 					new_note = 0;
+				}
+				else if (event.key.keysym.sym == SDLK_7){
+					music.push_back(new_note);
+					new_note = 0;
+				}
+				else if (event.key.keysym.sym == SDLK_8){
+					music_tam += music.size()-music_tam;
 				}
 				else if (event.key.keysym.sym == SDLK_q){
 					CLICK++;
@@ -140,6 +168,7 @@ int main(void)
 			}
 			if(music_tam) {
 				SDL_PauseAudio(0);
+				reset_note(synth);
 				change_note(synth,music[note]);  
 			}
 			note = note + 1;
@@ -182,17 +211,13 @@ int main(void)
 		textureText.append(" SEQ:");
 		for (int i = 0; i < music_tam; i++)
 		{
-			if(music[i]>=0) textureText.push_back(music[i] +'0');
-			else {
-				textureText.push_back('-');
-				textureText.push_back(-1*music[i] +'0');
-			}
+			textureText.append(notes[get_note(music[i])]);	
+			//textureText.append(notes[get_octave(music[i])]);			
+		
 		}
-		if(new_note>=0) textureText.push_back(new_note +'0');
-		else {
-			textureText.push_back('-');
-			textureText.push_back(-1*new_note +'0');
-		}
+		textureText.append(notes[get_note(new_note)]);
+		//textureText.append(notes[get_octave(new_note)]);
+
 		/* Text */
 		SDL_Rect str_r;
     	str_r.x = 0;

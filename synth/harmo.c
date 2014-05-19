@@ -3,14 +3,15 @@
 #include <math.h>
 #define PI	(3.1415926535898)
 #define STEP (1.059463)
-#define ROOT (440)
+#define ROOT (440) // 440 = A3
+#define ROOTNOTE (9)
+#define ROOTOCTAVE (3) 
 
 typedef struct
 {
 	double fs;	/* sampling freq */
 	double Ts;	/* sampling period */
 	double phi;	/* global phase (for fondamental oscillator) */
-	
 	double f;	/* fundamental freq */
 	double coefs[NCOEF];	/* current oscillator coeficients */
 	
@@ -113,3 +114,9 @@ void reset_note(Synth* synth){
 	synth->f = ROOT;
 }	
 
+int get_root(){
+	return ROOTNOTE;
+}
+int get_root_octave(){
+	return ROOTOCTAVE;
+}
